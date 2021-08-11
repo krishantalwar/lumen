@@ -5,12 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Traits\UserTrait;
 
 class AuthController extends Controller
 {
+    use UserTrait {
+        same as traitcalc;
+    }
+   
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login','register','index','same','traitcalc']]);
+    }
+
+    public function same(){
+        echo "sd";
     }
 
     /**
@@ -65,11 +74,14 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
+        $header = $request->header('apikey');
+            
         $credentials = $request->only(['username', 'password']);
 
-        if (! $token = Auth::attempt($credentials)) {			
+        if (! $token = Auth::claims(['foo' => $header])->attempt($credentials)) {			
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+        
         return $this->respondWithToken($token);
     }
 	
@@ -85,8 +97,16 @@ class AuthController extends Controller
     }
 
 
-    public function showOne($id)
+    public function showOne(Request $request,$id)
     {
+        $payload = auth()->payload();
+        // $header = $request->header('apikey');
+
+        // then you can access the claims directly e.g.
+        $payload->get('foo'); // = 123
+        $payload['jti']; // = 'asfe4fq434asdf'
+        $payload('exp'); // = 123456
+        return response()->json( $payload->toArray()); 
         return response()->json(User::find($id));
     }
 

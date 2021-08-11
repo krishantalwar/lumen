@@ -13,17 +13,25 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
-    // echo "asd";
-});
+// $router->get('/', function () use ($router) {
+//     return $router->app->version();
+//     // echo "asd";
+// });
+
+$router->get('/',  'AuthController@traitcalc');
+
 // https://www.youtube.com/watch?v=g_22EUfibJ8
 // https://github.com/flipboxstudio/lumen-generator
 // https://www.devcoons.com/getting-started-with-lumen-7-0-x-and-jwt-authentication/
 // https://jwt-auth.readthedocs.io/en/develop/quick-start/#update-your-user-model
 
-composer require chuckrincon/lumen-config-discover
-composer require tymon/jwt-auth:dev-develop
+// composer require chuckrincon/lumen-config-discover
+// composer require tymon/jwt-auth:dev-develop
+
+
+// jwt claims
+// trait / model 
+// 
 
 $router->group(['middleware' => 'auth','prefix' => 'api'], function ($router) 
 {
@@ -31,10 +39,15 @@ $router->group(['middleware' => 'auth','prefix' => 'api'], function ($router)
     $router->get('user/{id}', 'AuthController@showone');
     $router->put('user/{id}', 'AuthController@update');
     $router->delete('user/{id}', 'AuthController@delete');
+    // event start 
+    $router->post('event/', 'EventController@store');
+
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) 
 {
    $router->post('register', 'AuthController@register');
    $router->post('login', 'AuthController@login');
+   
+   $router->get('event/{id}', 'EventController@show');
 });
